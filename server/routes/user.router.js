@@ -9,7 +9,7 @@ app.get('/usuario', (req, res) => {
     let skip = req.query.skip || 0;
     let limit = req.query.limit || 5;
 
-    User.find( {}, 'name email role status google img' )
+    User.find( {}, 'name email role isActive google img' )
     .limit( Number( limit ) )
     .skip( Number( skip ) )
     .exec( async ( error, users ) => {
@@ -80,8 +80,32 @@ app.put( '/usuario/:id', ( req, res ) => {
     } );
 });
 
-app.delete('/usuario', (req, res) => {
-    res.send('delete Usuario');
+app.delete( '/usuario/:id', ( req, res ) => {
+    let id = req.params.id;
+
+    User.findOneAndDelete( { _id: id }, ( error, user ) => {
+        if ( error ) {
+            return res.status( 400 ).json( {
+                ok: false,
+                error
+            } );
+        }
+
+        if ( !user ) {
+            return res.status( 400 ).json( {
+                ok: false,
+                error: {
+                    message: 'Usuario no encontrado'
+                }
+            } );
+        }
+
+        res.json( {
+            ok: true,
+            user
+        } );
+    } );
+
 });
 
 module.exports = app;

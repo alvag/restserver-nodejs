@@ -31,7 +31,7 @@ let userSchema = new Schema( {
         default: 'USER_ROLE',
         enum: rolesValidos
     },
-    status: {
+    isActive: {
         type: Boolean,
         default: true
     },
