@@ -5,7 +5,28 @@ const _ = require( 'underscore' );
 const User = require( '../models/user.model' );
 
 app.get('/usuario', (req, res) => {
-    res.send('get Usuario');
+
+    let desde = req.query.desde || 0;
+    let limit = req.query.limit || 5;
+
+    User.find()
+    .limit( Number( limit ) )
+    .skip( Number( desde ) )
+    .exec( ( error, users ) => {
+
+        if ( error ) {
+            return res.status( 400 ).json( {
+                ok: false,
+                error
+            } );
+        }
+
+        res.json( {
+            ok: true,
+            users
+        } );
+
+    } );
 });
 
 app.post('/usuario', (req, res) => {
@@ -41,7 +62,6 @@ app.put( '/usuario/:id', ( req, res ) => {
     let id = req.params.id;
 
     User.findByIdAndUpdate( id, body, { new: true, runValidators: true }, ( error, userDB ) => {
-
         if ( error ) {
             return res.status( 400 ).json( {
                 ok: false,
