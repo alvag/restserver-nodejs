@@ -8,7 +8,6 @@ app.get('/usuario', (req, res) => {
 });
 
 app.post('/usuario', (req, res) => {
-
     let body = req.body;
 
     let user = new User( {
@@ -26,8 +25,6 @@ app.post('/usuario', (req, res) => {
             } );
         }
 
-        // userDB.password = null;
-
         res.json( {
             ok: true,
             user: userDB
@@ -37,8 +34,26 @@ app.post('/usuario', (req, res) => {
 
 });
 
-app.put('/usuario', (req, res) => {
-    res.send('put Usuario');
+app.put( '/usuario/:id', ( req, res ) => {
+
+    let body = req.body;
+    let id = req.params.id;
+
+    User.findByIdAndUpdate( id, body, { new: true }, ( error, userDB ) => {
+
+        if ( error ) {
+            return res.status( 400 ).json( {
+                ok: false,
+                error
+            } );
+        }
+
+        res.json( {
+            ok: true,
+            user: userDB
+        } );
+
+    } );
 });
 
 app.delete('/usuario', (req, res) => {
