@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 
 app.use( require( './routes/user.router' ) );
 
-mongoose.connect('mongodb://localhost:27017/cafe', { useNewUrlParser: true }, (err, res) => {
+mongoose.connect( process.env.URL_DB, { useNewUrlParser: true }, ( err, res ) => {
     if (err) throw err;
 
     console.log( 'Conectado a la base de datos.' );
