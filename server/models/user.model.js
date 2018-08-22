@@ -31,7 +31,7 @@ let userSchema = new Schema( {
         default: 'USER_ROLE',
         enum: rolesValidos
     },
-    estado: {
+    status: {
         type: Boolean,
         default: true
     },
