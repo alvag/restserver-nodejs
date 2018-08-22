@@ -41,6 +41,14 @@ let userSchema = new Schema( {
     }
 } );
 
+// Elimina el campo contraseña del usuario
+userSchema.methods.toJSON = function() {
+    let user = this;
+    let userObject = user.toObject();
+    delete userObject.password;
+    return userObject;
+};
+
 userSchema.plugin( uniqueValidator, { message: '{PATH} debe ser único.' } );
 
 module.exports = mongoose.model( 'User', userSchema );
