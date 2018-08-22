@@ -6,13 +6,13 @@ const User = require( '../models/user.model' );
 
 app.get('/usuario', (req, res) => {
 
-    let desde = req.query.desde || 0;
+    let skip = req.query.skip || 0;
     let limit = req.query.limit || 5;
 
-    User.find()
+    User.find( {}, 'name email role status google img' )
     .limit( Number( limit ) )
-    .skip( Number( desde ) )
-    .exec( ( error, users ) => {
+    .skip( Number( skip ) )
+    .exec( async ( error, users ) => {
 
         if ( error ) {
             return res.status( 400 ).json( {
@@ -21,9 +21,12 @@ app.get('/usuario', (req, res) => {
             } );
         }
 
-        res.json( {
-            ok: true,
-            users
+        User.countDocuments( {}, ( err, total ) => {
+            res.json( {
+                ok: true,
+                users,
+                total
+            } );
         } );
 
     } );
@@ -61,7 +64,7 @@ app.put( '/usuario/:id', ( req, res ) => {
     let body = _.pick( req.body, [ 'name', 'email', 'img', 'role', 'status' ] );
     let id = req.params.id;
 
-    User.findByIdAndUpdate( id, body, { new: true, runValidators: true }, ( error, userDB ) => {
+    User.findOneAndUpdate( { _id: id }, body, { new: true, runValidators: true }, ( error, userDB ) => {
         if ( error ) {
             return res.status( 400 ).json( {
                 ok: false,
