@@ -12,7 +12,7 @@ const decodeToken = (token) => {
             let payload = jwt.verify(token, process.env.TOKEN_SECRET_KEY);
             resolve(payload);
         } catch (e) {
-            reject();
+            reject( e );
         }
     });
 };
