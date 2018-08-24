@@ -16,6 +16,7 @@
 
 <script>
     function onSignIn( googleUser ) {
+        console.log( googleUser );
         let id_token = googleUser.getAuthResponse().id_token;
 
         let xhr = new XMLHttpRequest();

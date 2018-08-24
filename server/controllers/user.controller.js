@@ -2,6 +2,7 @@ const bcrypt = require( 'bcrypt' );
 const _ = require( 'underscore' );
 const User = require( '../models/user.model' );
 const { errorResponse, successResponse } = require( '../helpers/response.helper' );
+const jwt = require( '../helpers/jwt.helper' );
 
 const get = ( req, res ) => {
     let id = req.params.id;
@@ -61,6 +62,10 @@ const create = ( req, res ) => {
         role: body.role
     } );
 
+    createUser( res, user );
+};
+
+const createUser = ( res, user ) => {
     user.save( ( error, user ) => {
         if ( error ) {
             errorResponse( res, error );
@@ -71,7 +76,7 @@ const create = ( req, res ) => {
 };
 
 const update = ( req, res ) => {
-    let body = _.pick( req.body, [ 'name', 'email', 'img', 'role', 'isActive' ] );
+    let body = _.pick( req.body, [ 'name', 'img', 'role', 'isActive' ] );
     let id = req.params.id;
 
     updateUser( res, body, { _id: id } );
@@ -89,7 +94,11 @@ let updateUser = ( res, body, filter ) => {
         } else if ( !user ) {
             errorResponse( res, { message: 'Usuario no encontrado' } );
         } else {
-            successResponse( res, { user } );
+            let token;
+            if ( body.google ) {
+                token = jwt.createToken( user );
+            }
+            successResponse( res, { user, token } );
         }
     } );
 };
@@ -98,5 +107,7 @@ module.exports = {
     get,
     create,
     update,
-    del
+    del,
+    updateUser,
+    createUser
 };
