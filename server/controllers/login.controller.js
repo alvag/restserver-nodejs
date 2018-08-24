@@ -1,9 +1,11 @@
 const bcrypt = require( 'bcrypt' );
 const User = require( '../models/user.model' );
 const { errorResponse, successResponse } = require( '../helpers/response.helper' );
+const jwt = require( '../helpers/jwt.helper' );
 
 const login = (req, res) => {
     let body = req.body;
+
     if (!body.password) body.password = '';
 
     User.findOne({email: body.email}, (error, user) => {
@@ -15,13 +17,11 @@ const login = (req, res) => {
             if (!bcrypt.compareSync(body.password, user.password)) {
                 errorResponse( res, { message: 'Usuario o contraseña incorrectos.' } );
             } else {
-                successResponse(res, {user, token: '123'});
+                successResponse( res, { user, token: jwt.createToken( user ) } );
             }
         }
     });
-
 };
-
 
 module.exports = {
   login

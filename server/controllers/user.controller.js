@@ -6,6 +6,8 @@ const { errorResponse, successResponse } = require( '../helpers/response.helper'
 const get = ( req, res ) => {
     let id = req.params.id;
 
+    console.log( req.user );
+
     if ( id ) {
 
         User.findOne( { _id: id, isActive: true }, 'name email role isActive google img' )
