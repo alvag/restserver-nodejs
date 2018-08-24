@@ -12,7 +12,7 @@ const get = ( req, res ) => {
         .exec( ( error, user ) => {
 
             if ( error ) {
-                errorResponse( res, error );
+                errorResponse( res, error, 500 );
             } else if ( !user ) {
                 errorResponse( res, { message: 'Usuario no encontrado' } );
             } else {

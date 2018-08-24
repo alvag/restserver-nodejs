@@ -5,12 +5,13 @@ const express = require( 'express' );
 const app = express();
 const mongoose = require( 'mongoose' );
 mongoose.set( 'useFindAndModify', false );
+
 const bodyParser = require( 'body-parser' );
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
-app.use( require( './routes/user.router' ) );
+app.use( require( './routes/index.router' ) );
 
 mongoose.connect( process.env.DB_URL, { useNewUrlParser: true }, ( err, res ) => {
     if (err) throw err;
