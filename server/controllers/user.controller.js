@@ -71,7 +71,7 @@ const create = ( req, res ) => {
 };
 
 const update = ( req, res ) => {
-    let body = _.pick( req.body, [ 'name', 'email', 'img', 'role', 'status' ] );
+    let body = _.pick( req.body, [ 'name', 'email', 'img', 'role', 'isActive' ] );
     let id = req.params.id;
 
     updateUser( res, body, { _id: id } );
