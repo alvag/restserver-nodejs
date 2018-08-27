@@ -20,7 +20,7 @@ let userSchema = new Schema( {
     },
     password: {
         type: String,
-        required: [ true, 'La contraseña es requerida.' ]
+        required: [ this.google === false, 'La contraseña es requerida.' ]
     },
     img: {
         type: String,
@@ -33,7 +33,7 @@ let userSchema = new Schema( {
     },
     isActive: {
         type: Boolean,
-        default: true
+        default: false
     },
     google: {
         type: Boolean,

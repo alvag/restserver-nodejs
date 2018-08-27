@@ -3,6 +3,7 @@ const _ = require( 'underscore' );
 const User = require( '../models/user.model' );
 const { errorResponse, successResponse } = require( '../helpers/response.helper' );
 const jwt = require( '../helpers/jwt.helper' );
+const mail = require( './mail.controller' );
 
 const get = ( req, res ) => {
     let id = req.params.id;
@@ -53,24 +54,37 @@ const get = ( req, res ) => {
 };
 
 const create = ( req, res ) => {
-    let body = req.body;
-
-    let user = new User( {
-        name: body.name,
-        email: body.email,
-        password: bcrypt.hashSync( body.password, 10 ),
-        role: body.role
-    } );
-
+    let user = req.body;
     createUser( res, user );
 };
 
 const createUser = ( res, user ) => {
-    user.save( ( error, user ) => {
+
+    let newUser = new User( {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        google: user.google,
+        isActive: user.isActive
+    } );
+
+    let token;
+    if ( !user.google ) {
+        newUser.password = bcrypt.hashSync( user.password, 10 );
+    } else {
+        newUser.password = null;
+        token = jwt.createToken( user );
+    }
+
+    newUser.save( ( error, user ) => {
         if ( error ) {
             errorResponse( res, error );
         } else {
-            successResponse( res, { user }, 201 );
+            if ( user.google ) {
+                successResponse( res, { user, token }, 201 );
+            } else {
+                mail.verifyAccount( res, user );
+            }
         }
     } );
 };
@@ -103,11 +117,27 @@ let updateUser = ( res, body, filter ) => {
     } );
 };
 
+const verificar = ( req, res ) => {
+    let id = req.params.id;
+
+    User.findOneAndUpdate( { _id: id }, { isActive: true }, ( error, user ) => {
+        if ( error ) {
+            res.send( '<h1>Error al verificar el correo.</h1>' );
+        } else if ( !user ) {
+            res.send( '<h1>El usuario no existe.</h1>' );
+        } else {
+            res.send( '<h1>Usuario verificado!!!</h1>' );
+
+        }
+    } );
+};
+
 module.exports = {
     get,
     create,
     update,
     del,
     updateUser,
-    createUser
+    createUser,
+    verificar
 };

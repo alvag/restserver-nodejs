@@ -6,6 +6,7 @@ const jwt = require( '../helpers/jwt.helper' );
 const { OAuth2Client } = require( 'google-auth-library' );
 const client = new OAuth2Client( process.env.GOOGLE_CLIENT_ID );
 const userController = require( './user.controller' );
+const mail = require( './mail.controller' );
 
 const login = (req, res) => {
     let body = req.body;
@@ -18,11 +19,20 @@ const login = (req, res) => {
         } else if (!user) {
             errorResponse( res, { message: 'Usuario o contraseña incorrectos.' } );
         } else {
-            if (!bcrypt.compareSync(body.password, user.password)) {
+            if ( !user.password ) {
                 errorResponse( res, { message: 'Usuario o contraseña incorrectos.' } );
             } else {
-                successResponse( res, { user, token: jwt.createToken( user ) } );
+                if ( !bcrypt.compareSync( body.password, user.password ) ) {
+                    errorResponse( res, { message: 'Usuario o contraseña incorrectos.' } );
+                } else {
+                    if ( !user.isActive ) {
+                        mail.verifyAccount( res, user );
+                    } else {
+                        successResponse( res, { user, token: jwt.createToken( user ) } );
+                    }
+                }
             }
+
         }
     });
 };
@@ -38,11 +48,10 @@ const google = async ( req, res ) => {
             errorResponse( res, error, 500 );
         } else {
             if ( user ) {
-                let updateUser = _.pick( googleUser, [ 'name', 'img', 'google' ] );
-                console.log( 'updateUser', updateUser );
+                let updateUser = _.pick( googleUser, [ 'name', 'img', 'google', 'isActive' ] );
                 userController.updateUser( res, updateUser, { _id: user._id } );
             } else {
-                userController.updateUser( res, googleUser );
+                userController.createUser( res, googleUser );
             }
         }
     } );
@@ -61,7 +70,8 @@ const verify = async ( token ) => {
         email: payload.email,
         img: payload.picture,
         google: true,
-        password: null
+        password: null,
+        isActive: true
     };
 
 };
