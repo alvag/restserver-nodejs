@@ -32,7 +32,6 @@ const get = ( req, res ) => {
         .limit( Number( limit ) )
         .skip( Number( skip ) )
         .exec( ( error, users ) => {
-
             if ( error ) {
                 errorResponse( res, error, 500 );
             } else {
@@ -45,8 +44,6 @@ const get = ( req, res ) => {
                 } );
 
             }
-
-
         } );
     }
 
