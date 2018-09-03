@@ -1,6 +1,9 @@
 .idea/
 node_modules/
 
+uploads/*
+!uploads/.keep
+
 # System Files
 .DS_Store
 Thumbs.db
