@@ -1,8 +1,14 @@
 .idea/
 node_modules/
 
-uploads/*
+uploads/*.*
 !uploads/.keep
+
+uploads/usuarios/*.*
+!uploads/usuarios/.keep
+
+uploads/productos/*.*
+!uploads/productos/.keep
 
 # System Files
 .DS_Store
