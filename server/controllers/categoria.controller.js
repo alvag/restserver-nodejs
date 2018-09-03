@@ -74,7 +74,7 @@ const update = (req, res) => {
         if (error) {
             errorResponse(res, error, 500);
         } else if (categoriaDB && categoriaDB._id != _id) {
-            errorResponse(res, { message: 'Ya exista una categoría con esa descripción.' });
+            errorResponse(res, { message: 'Ya existe una categoría con esa descripción.' });
         } else {
             Categoria.findOneAndUpdate({ _id }, body, { new: true, runValidators: true }, (error, categoriaDB) => {
                 if (error) {
