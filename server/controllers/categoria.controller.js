@@ -63,7 +63,7 @@ const create = (req, res) => {
                 }
             });
         }
-    })
+    });
 };
 
 const update = (req, res) => {
@@ -73,7 +73,7 @@ const update = (req, res) => {
     Categoria.findOne({ descripcion: body.descripcion }, (error, categoriaDB) => {
         if (error) {
             errorResponse(res, error, 500);
-        } else if (categoriaDB && categoriaDB._id != _id) {
+        } else if (categoriaDB && categoriaDB._id !== _id) {
             errorResponse(res, { message: 'Ya existe una categoría con esa descripción.' });
         } else {
             Categoria.findOneAndUpdate({ _id }, body, { new: true, runValidators: true }, (error, categoriaDB) => {
@@ -85,7 +85,7 @@ const update = (req, res) => {
             });
         }
 
-    })
+    });
 };
 
 const del = (req, res) => {
@@ -99,7 +99,7 @@ const del = (req, res) => {
         } else {
             successResponse(res, { categoriaDB });
         }
-    })
+    });
 };
 
 module.exports = {

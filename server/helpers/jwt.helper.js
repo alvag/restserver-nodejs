@@ -1,9 +1,9 @@
-const jwt = require( 'jsonwebtoken' );
+const jwt = require('jsonwebtoken');
 
 const createToken = (payload) => {
     return jwt.sign({
         user: payload
-    }, process.env.TOKEN_SECRET_KEY, {expiresIn: process.env.TOKEN_EXPIRES})
+    }, process.env.TOKEN_SECRET_KEY, { expiresIn: process.env.TOKEN_EXPIRES });
 };
 
 const decodeToken = (token) => {
@@ -12,12 +12,12 @@ const decodeToken = (token) => {
             let payload = jwt.verify(token, process.env.TOKEN_SECRET_KEY);
             resolve(payload);
         } catch (e) {
-            reject( e );
+            reject(e);
         }
     });
 };
 
 module.exports = {
-  createToken,
+    createToken,
     decodeToken
 };

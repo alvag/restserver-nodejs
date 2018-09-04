@@ -12,7 +12,6 @@ const paginar = (path, total, pag, cant) => {
     if (_pag > 0) {
         previousPage = url + path + '?pag=' + _pag + '&cant=' + cant;
     }
-
     return { total, pages, currentPage: pag, nextPage, previousPage };
 };
 
