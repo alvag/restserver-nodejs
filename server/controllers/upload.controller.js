@@ -1,6 +1,7 @@
 const { successResponse, errorResponse } = require('../helpers/response.helper');
 const extensionesValidas = ['png', 'jpg', 'gif', 'jpeg'];
 const tiposValidos = ['productos', 'usuarios'];
+const usuarioCtrl = require('./user.controller');
 
 const upload = (req, res) => {
     if (!req.files) {
@@ -22,7 +23,8 @@ const upload = (req, res) => {
                     if (error) {
                         errorResponse(res, error);
                     } else {
-                        successResponse(res, { message: 'Archivo subido correctamente' });
+                        // successResponse(res, { message: 'Archivo subido correctamente' });
+                        usuarioCtrl.updateUser(res, { img: fileName }, { _id }, true);
                     }
                 });
             }
