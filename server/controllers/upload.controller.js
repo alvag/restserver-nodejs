@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const { successResponse, errorResponse } = require('../helpers/response.helper');
 const User = require('../models/user.model');
 const Producto = require('../models/producto.model');
@@ -92,7 +93,7 @@ const getExtension = (fileName) => {
 };
 
 const deleteFile = (directory, fileName) => {
-    let pathFile = `${process.env.UPLOAD_DIR}/${directory}/${fileName}`;
+    let pathFile = path.resolve(__dirname, `../../${process.env.UPLOAD_DIR}/${directory}/${fileName}`);
     if (fs.existsSync(pathFile)) {
         fs.unlinkSync(pathFile);
     }
