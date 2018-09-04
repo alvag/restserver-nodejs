@@ -61,7 +61,7 @@ const update = (req, res) => {
             errorResponse(res, error, 500);
         } else if (!productoDB) {
             errorResponse(res, { message: 'No existe ningún producto con ese ID.' }, 400);
-        } else if (productoDB && productoDB._id != _id) {
+        } else if (productoDB && productoDB._id !== _id) {
             errorResponse(res, { message: 'Ya existe un producto con el mismo nombre.' });
         } else {
             Producto.findOneAndUpdate({ _id }, body, { new: true, runValidators: true }, (error, productoDB) => {

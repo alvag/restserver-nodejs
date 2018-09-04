@@ -1,6 +1,6 @@
 {
     "parserOptions": {
-        "ecmaVersion": 6,
+        "ecmaVersion": 8,
         "sourceType": "module"
     },
     "env": {
@@ -19,6 +19,7 @@
             "single"
         ],
         "no-console": "warn",
-        "no-var": "warn"
+        "no-var": "warn",
+        "eqeqeq": "error"
     }
 }

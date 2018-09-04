@@ -98,7 +98,7 @@ const del = (req, res) => {
     updateUser(res, { isActive: false }, { _id: id });
 };
 
-let updateUser = (res, body, filter, isUpload = false) => {
+let updateUser = (res, body, filter) => {
     User.findOneAndUpdate(filter, body, { new: true, runValidators: true }, (error, user) => {
         if (error) {
             errorResponse(res, error);
