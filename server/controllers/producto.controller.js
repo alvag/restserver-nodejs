@@ -10,13 +10,13 @@ const get = (req, res) => {
         Producto.findOne({ _id })
             .populate('user', 'name email')
             .populate('categoria', 'descripcion')
-            .exec((error, productoDB) => {
+            .exec((error, producto) => {
                 if (error) {
                     errorResponse(res, error, 500);
-                } else if (!productoDB) {
+                } else if (!producto) {
                     errorResponse(res, { message: 'Producto no encontrado' });
                 } else {
-                    successResponse(res, { productoDB });
+                    successResponse(res, { producto });
                 }
             });
     } else {
@@ -25,7 +25,7 @@ const get = (req, res) => {
 };
 
 const create = (req, res) => {
-    let producto = new Producto({
+    let prod = new Producto({
         nombre: req.body.nombre,
         precioUni: req.body.precioUni,
         stock: req.body.stock,
@@ -35,17 +35,17 @@ const create = (req, res) => {
         user: req.user._id
     });
 
-    Producto.findOne({ nombre: producto.nombre }, (error, productoDB) => {
+    Producto.findOne({ nombre: prod.nombre }, (error, producto) => {
         if (error) {
             errorResponse(res, error, 500);
-        } else if (productoDB) {
+        } else if (producto) {
             errorResponse(res, { message: 'Ya existe un producto con el mismo nombre.' });
         } else {
-            producto.save((error, productoDB) => {
+            prod.save((error, producto) => {
                 if (error) {
                     errorResponse(res, error);
                 } else {
-                    successResponse(res, { productoDB }, 201);
+                    successResponse(res, { producto }, 201);
                 }
             });
         }
@@ -53,7 +53,7 @@ const create = (req, res) => {
 };
 
 const update = (req, res) => {
-    let body = _.pick(req.body, ['nombre', 'precioUni', 'descripcion', 'disponible', 'stock', 'categoria']);
+    let body = _.pick(req.body, ['nombre', 'precioUni', 'descripcion', 'disponible', 'stock', 'categoria', 'img']);
     let _id = req.params.id;
 
     Producto.findOne({ nombre: body.nombre }, (error, productoDB) => {
@@ -64,11 +64,11 @@ const update = (req, res) => {
         } else if (productoDB && productoDB._id !== _id) {
             errorResponse(res, { message: 'Ya existe un producto con el mismo nombre.' });
         } else {
-            Producto.findOneAndUpdate({ _id }, body, { new: true, runValidators: true }, (error, productoDB) => {
+            Producto.findOneAndUpdate({ _id }, body, { new: true, runValidators: true }, (error, producto) => {
                 if (error) {
                     errorResponse(res, error);
                 } else {
-                    successResponse(res, { productoDB });
+                    successResponse(res, { producto });
                 }
             });
         }
@@ -79,13 +79,13 @@ const update = (req, res) => {
 const del = (req, res) => {
     let _id = req.params.id;
 
-    Producto.findOneAndRemove({ _id }, (error, productoDB) => {
+    Producto.findOneAndRemove({ _id }, (error, producto) => {
         if (error) {
             errorResponse(res, error, 500);
-        } else if (!productoDB) {
+        } else if (!producto) {
             errorResponse(res, { message: 'No existe ningún producto con ese ID.' }, 400);
         } else {
-            successResponse(res, { productoDB });
+            successResponse(res, { producto });
         }
     });
 };
@@ -107,7 +107,7 @@ const listarProductos = (res, req, filter = {}) => {
         .populate('categoria', 'descripcion')
         .limit(cant)
         .skip((pag - 1) * cant)
-        .exec((error, productosDB) => {
+        .exec((error, productos) => {
             if (error) {
                 errorResponse(res, error, 500);
             } else {
@@ -115,7 +115,7 @@ const listarProductos = (res, req, filter = {}) => {
                     if (err) {
                         errorResponse(res, err, 500);
                     } else {
-                        successResponse(res, { paginacion: paginacion.paginar(req.path, total, pag, cant), productosDB });
+                        successResponse(res, { paginacion: paginacion.paginar(req.path, total, pag, cant), productos });
                     }
                 });
             }

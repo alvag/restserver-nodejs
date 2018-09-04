@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { successResponse, errorResponse } = require('../helpers/response.helper');
 const User = require('../models/user.model');
+const Producto = require('../models/producto.model');
 const extensionesValidas = ['png', 'jpg', 'gif', 'jpeg'];
 const tiposValidos = ['productos', 'usuarios'];
 
@@ -61,7 +62,29 @@ const updateImgUser = (res, _id, fileName) => {
     });
 };
 
-const updateImgProducto = (res, _id, fileName) => { };
+const updateImgProducto = (res, _id, fileName) => {
+    Producto.findOne({ _id }, (error, producto) => {
+        if (error) {
+            errorResponse(res, error, 500);
+            deleteFile('productos', fileName);
+        } else if (!producto) {
+            errorResponse(res, { message: 'Usuario no encontrado' });
+            deleteFile('productos', fileName);
+        } else {
+            let oldImg = producto.img;
+            producto.img = fileName;
+            producto.save((error, producto) => {
+                if (error) {
+                    errorResponse(res, error, 500);
+                    deleteFile('productos', fileName);
+                } else {
+                    successResponse(res, { producto });
+                    deleteFile('productos', oldImg);
+                }
+            });
+        }
+    });
+};
 
 const getExtension = (fileName) => {
     let arrName = fileName.split('.');
