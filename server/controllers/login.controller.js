@@ -13,27 +13,27 @@ const login = (req, res) => {
 
     if (!body.password) body.password = '';
 
-    User.findOne({ email: body.email }, (error, user) => {
-        if (error) {
-            errorResponse(res, error, 500);
-        } else if (!user) {
-            errorResponse(res, { message: 'Usuario o contraseña incorrectos.' });
-        } else {
-            if (!user.password) {
-                errorResponse(res, { message: 'Usuario o contraseña incorrectos.' });
-            } else {
-                if (!bcrypt.compareSync(body.password, user.password)) {
-                    errorResponse(res, { message: 'Usuario o contraseña incorrectos.' });
-                } else {
-                    if (!user.isActive) {
-                        mail.verifyAccount(res, user);
-                    } else {
-                        successResponse(res, { user, token: jwt.createToken(user) });
-                    }
-                }
-            }
-
+    User.findOne({ email: body.email }).then(user => {
+        if (!user) {
+            return errorResponse(res, { message: 'Usuario o contraseña incorrectos.' });
         }
+
+        if (!user.password) {
+            return errorResponse(res, { message: 'Usuario o contraseña incorrectos.' });
+        }
+
+        if (!bcrypt.compareSync(body.password, user.password)) {
+            return errorResponse(res, { message: 'Usuario o contraseña incorrectos.' });
+        }
+
+        if (user.isActive) {
+            return successResponse(res, { user, token: jwt.createToken(user) });
+        }
+
+        mail.verifyAccount(res, user);
+
+    }).catch(error => {
+        errorResponse(res, error, 500);
     });
 };
 

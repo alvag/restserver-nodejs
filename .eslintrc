@@ -19,7 +19,6 @@
             "error",
             "single"
         ],
-        "no-console": "warn",
         "no-var": "warn",
         "eqeqeq": "error"
     }
