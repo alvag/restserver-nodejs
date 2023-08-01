@@ -14,3 +14,5 @@ uploads/productos/*.*
 .DS_Store
 Thumbs.db
 .env
+
+mongo
