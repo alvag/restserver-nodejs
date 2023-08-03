@@ -1,21 +1,22 @@
 const express = require('express');
 const path = require('path');
-const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
-
-
+const { dbConnection } = require('../database/config');
 
 class Server {
     constructor() {
         this.app = express();
-        this.mongoose = mongoose;
-        this.port = process.env.PORT;
-        this.dbUrl = process.env.DB_URL;
+
+        this.dbConnection();
 
         this.middlewares();
         this.routes();
+    }
+
+    async dbConnection() {
+        await dbConnection();
     }
 
     middlewares() {
@@ -31,15 +32,8 @@ class Server {
     }
 
     listen() {
-        this.mongoose.connect(this.dbUrl).then(() =>{
-            console.log('Conectado a la base de datos');
-
-            this.app.listen(this.port, () => {
-                console.log(`Servidor corriendo en el puerto ${this.port}.`);
-            });
-
-        }).catch((err) => {
-            console.log('Error al conectar a la base de datos', err);
+        this.app.listen(this.port, () => {
+            console.log(`Servidor corriendo en el puerto ${this.port}.`);
         });
     }
 }
