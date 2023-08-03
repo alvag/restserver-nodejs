@@ -1,11 +1,12 @@
-const express = require('express');
-const app = express();
+const { Router } = require( 'express' );
+const router = Router();
 
-app.use(require('./user.router'));
-app.use(require('./login.router'));
-app.use(require('./categoria.router'));
-app.use(require('./producto.router'));
-app.use(require('./upload.router'));
-app.use(require('./img.router'));
 
-module.exports = app;
+router.use(require('./user.router'));
+router.use(require('./login.router'));
+router.use(require('./categoria.router'));
+router.use(require('./producto.router'));
+router.use(require('./upload.router'));
+router.use(require('./img.router'));
+
+module.exports = router;

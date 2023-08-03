@@ -1,8 +1,8 @@
-const express = require('express');
-const app = express();
+const { Router } = require( 'express' );
+const router = Router();
 const imgCtrl = require('../controllers/img.controller');
 const auth = require('../middlewares/auth');
 
-app.get('/img/:tipo/:fileName', auth.checkTokenImg, imgCtrl.get);
+router.get('/img/:tipo/:fileName', auth.checkTokenImg, imgCtrl.get);
 
-module.exports = app;
+module.exports = router;

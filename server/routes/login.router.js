@@ -1,8 +1,8 @@
-const express = require( 'express' );
-const app = express();
+const { Router } = require( 'express' );
+const router = Router();
 const loginController = require( '../controllers/login.controller' );
 
-app.post('/login', loginController.login);
-app.post( '/login/google', loginController.google );
+router.post('/login', loginController.login);
+router.post( '/login/google', loginController.google );
 
-module.exports = app;
+module.exports = router;
