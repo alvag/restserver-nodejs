@@ -34,6 +34,8 @@ let userSchema = new Schema({
 // Elimina el campo contraseña del usuario
 userSchema.methods.toJSON = function () {
     let userObject = this.toObject();
+    userObject.uid = userObject._id;
+    delete userObject._id;
     delete userObject.password;
     delete userObject.__v;
     return userObject;

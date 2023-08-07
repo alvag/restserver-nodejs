@@ -1,5 +1,4 @@
 const jwt = require('../helpers/jwt.helper');
-const { errorResponse } = require('../helpers/response.helper');
 
 const isAuth = (req, res, next) => {
     verificaToken(req, res, next, req.get('Authorization'));
@@ -11,15 +10,20 @@ const checkTokenImg = (req, res, next) => {
 
 const verificaToken = (req, res, next, token) => {
     if (!token) {
-        errorResponse(res, { message: 'No tienes autorización.' }, 401);
+        res.status(401).json({
+            message: 'No tienes autorización.',
+        });
     } else {
         jwt.decodeToken(token)
-            .then(response => {
+            .then((response) => {
                 req.user = response.user;
                 next();
             })
             .catch((error) => {
-                errorResponse(res, { message: 'No tienes autorización.', error }, 401);
+                console.log(error);
+                res.status(401).json({
+                    message: 'No tienes autorización.',
+                });
             });
     }
 };
@@ -28,10 +32,14 @@ const isAdmin = (req, res, next) => {
     if (req.user.role === 'ADMIN_ROLE') {
         next();
     } else {
-        errorResponse(res, { message: 'No tienes permisos para realizar esta acción.' }, 403);
+        res.status(403).json({
+            message: 'No tienes permisos para realizar esta acción.',
+        });
     }
 };
 
 module.exports = {
-    isAuth, isAdmin, checkTokenImg
+    isAuth,
+    isAdmin,
+    checkTokenImg,
 };
