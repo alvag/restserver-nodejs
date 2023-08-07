@@ -10,8 +10,14 @@ const {
     idExists,
 } = require('../helpers/db-validators.helper');
 
-router.get('/usuario', auth.isAuth, userController.get);
-router.get('/usuario/:id', auth.isAuth, userController.get);
+// router.get('/usuario', auth.isAuth, userController.get);
+router.get('/usuario', userController.get);
+// router.get('/usuario/:id', auth.isAuth, userController.get);
+router.get(
+    '/usuario/:id',
+    [check('id', 'No es un ID válido').isMongoId(), validateFields],
+    userController.get
+);
 router.get('/verificar/:id', userController.verificar);
 // router.post( '/usuario', [ auth.isAuth, auth.isAdmin ], userController.create );
 router.post(
@@ -39,6 +45,11 @@ router.put(
     ],
     userController.update
 );
-router.delete( '/usuario/:id', [ auth.isAuth, auth.isAdmin ], userController.del );
+// router.delete( '/usuario/:id', [ auth.isAuth, auth.isAdmin ], userController.del );
+router.delete( '/usuario/:id', [
+        check('id', 'No es un ID válido').isMongoId(),
+        check('id').custom(idExists),
+        validateFields,
+    ], userController.del );
 
 module.exports = router;

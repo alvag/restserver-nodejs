@@ -3,44 +3,51 @@ const _ = require('underscore');
 const User = require('../models/user.model');
 const { errorResponse, successResponse } = require('../helpers/response.helper');
 const jwt = require('../helpers/jwt.helper');
+const { paginar } = require('../helpers/paginacion.helper');
 
-const get = (req, res) => {
+const get = async (req, res) => {
     let id = req.params.id;
 
     if (id) {
-        User.findOne(
-            { _id: id, isActive: true },
-            'name email role isActive google img'
-        ).exec((error, user) => {
-            if (error) {
-                errorResponse(res, error, 500);
-            } else if (!user) {
+        try {
+            const user = await User.findOne(
+                { _id: id, isActive: true },
+                'name email role isActive google img'
+            );
+
+            if (!user) {
                 errorResponse(res, { message: 'Usuario no encontrado' });
             } else {
                 successResponse(res, { user });
             }
-        });
+        } catch (error) {
+            errorResponse(res, error, 500);
+        }
     } else {
-        let skip = req.query.skip || 0;
-        let limit = req.query.limit || 5;
-        let active = req.query.active || true;
+        try {
+            let pag = Number(req.query.pag) || 1;
+            let cant = Number(req.query.cant) || 5;
 
-        User.find({ isActive: active }, 'name email role isActive google img')
-            .limit(Number(limit))
-            .skip(Number(skip))
-            .exec((error, users) => {
-                if (error) {
-                    errorResponse(res, error, 500);
-                } else {
-                    User.countDocuments({}, (err, total) => {
-                        if (err) {
-                            errorResponse(res, err, 500);
-                        } else {
-                            successResponse(res, { users, total });
-                        }
-                    });
-                }
+            let active = req.query.active || true;
+
+            const [users, total] = await Promise.all([
+                User.find(
+                    { isActive: active },
+                    'name email role isActive google img'
+                )
+                    .limit(cant)
+                    .skip((pag - 1) * cant)
+                    .exec(),
+                User.countDocuments({ isActive: active }),
+            ]);
+
+            successResponse(res, {
+                paginacion: paginar(req.path, total, pag, cant),
+                users,
             });
+        } catch (error) {
+            errorResponse(res, error, 500);
+        }
     }
 };
 
@@ -93,7 +100,7 @@ const update = (req, res) => {
 
 const del = (req, res) => {
     let id = req.params.id;
-    updateUser(res, { isActive: false }, { _id: id });
+    updateUser(res, { isActive: false }, { _id: id, isActive: true });
 };
 
 let updateUser = async (res, body, filter) => {
