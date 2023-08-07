@@ -3,26 +3,23 @@ const _ = require('underscore');
 const User = require('../models/user.model');
 const { errorResponse, successResponse } = require('../helpers/response.helper');
 const jwt = require('../helpers/jwt.helper');
-const mail = require('./mail.controller');
 
 const get = (req, res) => {
     let id = req.params.id;
 
     if (id) {
-
-        User.findOne({ _id: id, isActive: true }, 'name email role isActive google img')
-            .exec((error, user) => {
-
-                if (error) {
-                    errorResponse(res, error, 500);
-                } else if (!user) {
-                    errorResponse(res, { message: 'Usuario no encontrado' });
-                } else {
-                    successResponse(res, { user });
-                }
-
-            });
-
+        User.findOne(
+            { _id: id, isActive: true },
+            'name email role isActive google img'
+        ).exec((error, user) => {
+            if (error) {
+                errorResponse(res, error, 500);
+            } else if (!user) {
+                errorResponse(res, { message: 'Usuario no encontrado' });
+            } else {
+                successResponse(res, { user });
+            }
+        });
     } else {
         let skip = req.query.skip || 0;
         let limit = req.query.limit || 5;
@@ -42,52 +39,53 @@ const get = (req, res) => {
                             successResponse(res, { users, total });
                         }
                     });
-
                 }
             });
     }
-
-
 };
 
-const create = (req, res) => {
+const create = async (req, res) => {
     let user = req.body;
-    createUser(res, user);
+    return await createUser(res, user);
 };
 
-const createUser = (res, user) => {
-
+const createUser = async (res, user) => {
     let newUser = new User({
         name: user.name,
         email: user.email,
         role: user.role,
-        google: user.google,
-        isActive: user.isActive
     });
 
     let token;
-    if (!user.google) {
+    if (!newUser.google) {
         newUser.password = bcrypt.hashSync(user.password, 10);
     } else {
         newUser.password = null;
         token = jwt.createToken(user);
     }
 
-    newUser.save((error, user) => {
-        if (error) {
-            errorResponse(res, error);
+    try {
+        const user = await newUser.save();
+        if (user.google) {
+            successResponse(res, { user, token }, 201);
         } else {
-            if (user.google) {
-                successResponse(res, { user, token }, 201);
-            } else {
-                mail.verifyAccount(res, user);
-            }
+            successResponse(res, { user, token }, 201);
+            // mail.verifyAccount(res, user);
         }
-    });
+    } catch (error) {
+        console.log(error);
+        errorResponse(res, error);
+    }
 };
 
 const update = (req, res) => {
-    let body = _.pick(req.body, ['name', 'img', 'role', 'isActive']);
+    let body = _.pick(req.body, [
+        'name',
+        'img',
+        'role',
+        'isActive',
+        'password',
+    ]);
     let id = req.params.id;
 
     updateUser(res, body, { _id: id });
@@ -98,20 +96,30 @@ const del = (req, res) => {
     updateUser(res, { isActive: false }, { _id: id });
 };
 
-let updateUser = (res, body, filter) => {
-    User.findOneAndUpdate(filter, body, { new: true, runValidators: true }, (error, user) => {
-        if (error) {
-            errorResponse(res, error);
-        } else if (!user) {
-            errorResponse(res, { message: 'Usuario no encontrado' });
-        } else {
-            let token;
-            if (body.google) {
-                token = jwt.createToken(user);
-            }
-            successResponse(res, { user, token });
+let updateUser = async (res, body, filter) => {
+    try {
+        if (body.password) {
+            body.password = bcrypt.hashSync(body.password, 10);
         }
-    });
+
+        const user = await User.findOneAndUpdate(filter, body, {
+            new: true,
+            runValidators: true,
+        });
+
+        if (!user) {
+            return errorResponse(res, { message: 'Usuario no encontrado' });
+        }
+
+        let token;
+        if (body.google) {
+            token = jwt.createToken(user);
+        }
+        successResponse(res, { user, token });
+    } catch (error) {
+        console.log(error);
+        errorResponse(res, error);
+    }
 };
 
 const verificar = (req, res) => {
