@@ -64,7 +64,7 @@ const createUser = async (res, user) => {
     });
 
     let token;
-    if (!newUser.google) {
+    if (!user.google) {
         newUser.password = bcrypt.hashSync(user.password, 10);
     } else {
         newUser.password = null;

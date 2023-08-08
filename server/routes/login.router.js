@@ -13,6 +13,10 @@ router.post(
     ],
     loginController.login
 );
-router.post( '/login/google', loginController.google );
+router.post(
+    '/login/google',
+    [check('idToken', 'El idToken es obligatorio')],
+    loginController.google
+);
 
 module.exports = router;

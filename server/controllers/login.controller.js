@@ -55,19 +55,15 @@ const login = (req, res) => {
 };
 
 const google = async (req, res) => {
-    let token = req.body.idtoken;
+    let token = req.body.idToken;
     let googleUser = await verify(token).catch((error) => {
         return res.status(403).json({
             error,
         });
     });
 
-    User.findOne({ email: googleUser.email }, (error, user) => {
-        if (error) {
-            return res.status(500).json({
-                message: 'Internal server error',
-            });
-        } else {
+    User.findOne({ email: googleUser.email })
+        .then((user) => {
             if (user) {
                 let updateUser = _.pick(googleUser, [
                     'name',
@@ -79,8 +75,13 @@ const google = async (req, res) => {
             } else {
                 userController.createUser(res, googleUser);
             }
-        }
-    });
+        })
+        .catch((error) => {
+            console.log(error);
+            return res.status(500).json({
+                message: 'Internal server error',
+            });
+        });
 };
 
 const verify = async (token) => {

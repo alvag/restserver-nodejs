@@ -5,35 +5,64 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Google Sign-In Demo</title>
-    <script src="https://apis.google.com/js/platform.js" async defer></script>
-    <meta name="google-signin-client_id" content="1018490585595-03utfavk743j8kpi45fa7ja0fagf170h.apps.googleusercontent.com">
 </head>
 <body>
 
-<div class="g-signin2" data-onsuccess="onSignIn"></div>
+    <div id="g_id_onload"
+         data-client_id="1024328207725-brai81a5frl74qtuc51oldkfp97ulcr6.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-shape="rectangular"
+         data-logo_alignment="left">
+    </div>
 
-<a href="#" onclick="signOut();">Sign out</a>
+    <br>
+    <br>
+    
+    <button id="google_signout">
+        Sign Out
+    </button>
+    
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script>
-    function onSignIn( googleUser ) {
-        console.log( googleUser );
-        let id_token = googleUser.getAuthResponse().id_token;
+                    function handleCredentialResponse(response) {
 
-        let xhr = new XMLHttpRequest();
-        xhr.open( 'POST', '/login/google' );
-        xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded' );
-        xhr.onload = function() {
-            console.log( 'Signed in as: ' + xhr.responseText );
-        };
-        xhr.send( 'idtoken=' + id_token );
+                    const body = {
+                        idToken: response.credential
+                    }
+
+                    fetch('/api/login/google', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(body),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Success:', data);
+                            localStorage.setItem('email', data.response.user.email);
+                        })
+                        .catch((error) => {
+                            console.error('Error:', error);
+                        });
     }
 
-    function signOut() {
-        let auth2 = gapi.auth2.getAuthInstance();
-        auth2.signOut().then( function() {
-            console.log( 'User signed out.' );
-        } );
-    }
+    const btnSignOut = document.getElementById('google_signout');
+    btnSignOut.addEventListener('click', () => {
+        google.accounts.id.disableAutoSelect();
+        google.accounts.id.revoke(localStorage.getItem('email'), () => {
+            console.log('User signed out successfully');
+        });
+    });
 </script>
+
 </body>
 </html>
